@@ -1,0 +1,18 @@
+.scan-result-item {
+    display: flex;
+    gap: 1rem;
+    width: 50%;
+    align-items: center;
+}
+
+.scan-result-item div, .scan-result-item a {
+    align-items: center;
+    border: 0.15rem solid rgb(99, 98, 98);
+    border-radius: 0.45rem;
+    display: flex;
+    height: 2.5rem;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+    width: 30%;
+}

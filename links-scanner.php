@@ -49,6 +49,11 @@ function render_scan_plugin_page() {
 
 function enqueue_scan_plugin_scripts($hook_suffix) {
     if ($hook_suffix === 'toplevel_page_scan-plugin') {
+        wp_enqueue_style(
+            'links-scanner-style',
+            plugin_dir_url(__FILE__) . 'assets/style.css', [], '1.0.0'
+        );
+
         wp_enqueue_script(
             'scan-button-script',
             plugin_dir_url(__FILE__) . 'js/scan-button.js',
@@ -68,16 +73,23 @@ function handle_scan_button_action() {
         wp_send_json_error('Invalid Nonce');
         wp_die();
     }
-    $permalinks = get_all_permalinks();
-    error_log(print_r($permalinks, true));
-
+    
     $links = scan_homepage_links();
-
+    $permalinks = get_all_permalinks();
+    
+    $filteredArray = get_matching_items($permalinks, $links);
+    
     if (is_array($links)) {
-        wp_send_json_success(wp_send_json_success(['links' => $links]));
+        wp_send_json_success(wp_send_json_success(  $filteredArray));
     } else {
         wp_send_json_error($links);
     }
+}
+
+function get_matching_items(array $simpleArray, array $complexArray): array {
+    return array_filter($complexArray, function ($item) use ($simpleArray) {
+        return in_array($item['url'], $simpleArray);
+    });
 }
 
 function scan_homepage_links() {
@@ -98,8 +110,13 @@ function scan_homepage_links() {
 
     foreach ($links as $link) {
         $href = $link->getAttribute('href');
+        $anchor_text = trim($link->textContent);
+
         if(strpos($href, home_url('/')) === 0) {
-            $permalinks[] = $href;
+            $permalinks[] = [
+                'url' => $href,
+                'anchor_text' => $anchor_text
+            ];
         }
     }
 
@@ -121,10 +138,7 @@ function get_all_permalinks() {
         $permalinks[] = get_permalink($post->ID);
     }
 
-    error_log('Test de log : Code atteint');
-
-
-    return $permalinks;
+    return array_unique($permalinks);
 }
 
 

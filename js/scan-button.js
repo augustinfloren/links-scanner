@@ -11,10 +11,22 @@ jQuery(document).ready(function ($) {
         },
         success: function (response) {
           if (response.success) { 
-            $links = response.data.links;
+            $links = response.data;
+            console.log($links)
             $.each($links, function(index, link) {
-              console.log(link)
-              $( "#scan-result" ).append( `<li>${link}</li>` )
+              $( "#scan-result" ).append( 
+                `
+                <li class="scan-result-item">
+                  <div>
+                    <p>${link.anchor_text}<p>
+                  </div>
+                  <span>=></span>
+                  <a class="link" href="${link.url}">
+                    ${link.url}
+                  </a>
+                </li>
+                ` 
+              )
             })
           } else {
             alert('Erreur : ' + response.data);
