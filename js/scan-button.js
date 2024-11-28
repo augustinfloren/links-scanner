@@ -1,5 +1,4 @@
 jQuery(document).ready(function ($) {
-  console.log(scanButton.ajax_url);
   $('#scan-button').click(function() {
       const nonce = $(this).data('nonce');
       
@@ -11,8 +10,12 @@ jQuery(document).ready(function ($) {
           nonce: nonce,
         },
         success: function (response) {
-          if (response.success) {
-            alert(response.data);
+          if (response.success) { 
+            $links = response.data.links;
+            $.each($links, function(index, link) {
+              console.log(link)
+              $( "#scan-result" ).append( `<li>${link}</li>` )
+            })
           } else {
             alert('Erreur : ' + response.data);
           }
