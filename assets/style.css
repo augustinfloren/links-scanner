@@ -16,12 +16,15 @@
 }
 
 #scan-result-container {
+    border: 4px solid #c6c6c647;
+    height: 24rem;
+    margin-right: 2rem;
+    overflow-y: auto;
     visibility: hidden;
 }
 
 #scan-result {
     border-collapse: collapse;
-    margin-right: 2rem;
 }
 #scan-result th, #scan-result td {
     border: 1px solid #bebebe;
@@ -30,11 +33,6 @@
 #scan-result th {
     background-color: #e2e2e2;
     text-align: left;
-}
-
-#scan-result .dashicons {
-    font-size: 2rem;
-    opacity: 50%;
 }
 
 .scan-result-item {
