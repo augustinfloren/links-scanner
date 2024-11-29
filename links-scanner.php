@@ -36,8 +36,8 @@ function add_scan_plugin_menu() {
 function render_scan_plugin_page() {
     $nonce = wp_create_nonce('scan_button_action');
     ?>
-    <div class="wrap">
-        <h1>Links Scanner</h1>
+    <div id="links-scanner">
+        <h1><span class="dashicons dashicons-search"></span> Links Scanner</h1>
         <p>Cliquer sur le bouton ci-dessous pour commencer le scan de la page.</p>
         <button id="scan-button" data-nonce="<?php echo esc_attr($nonce); ?>">Scanner</button>
     </div>

@@ -20,7 +20,7 @@ jQuery(document).ready(function ($) {
                   <div>
                     <p>${link.anchor_text}<p>
                   </div>
-                  <span>=></span>
+                  <span class="dashicons dashicons-admin-links"></span>
                   <a class="link" href="${link.url}">
                     ${link.url}
                   </a>
