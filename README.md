@@ -2,7 +2,7 @@
 
 ## Description
 
-Maillage Interne Scanner est un plugin WordPress conçu pour analyser les liens internes d'une page. 
+Links Scanner est un plugin WordPress conçu pour analyser les liens internes d'une page. 
 
 
 ## Fonctionnalités principales
