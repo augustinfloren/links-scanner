@@ -39,20 +39,25 @@ function render_scan_plugin_page() {
     <div id="links-scanner">
         <h1><span class="dashicons dashicons-search"></span> Links Scanner</h1>
         <p>Cliquer sur le bouton ci-dessous pour commencer le scan de la page.</p>
-        <button id="scan-button" data-nonce="<?php echo esc_attr($nonce); ?>">Scanner</button>
-    </div>
-    <div id="scan-result-container">
-        <table id="scan-result">
-            <thead>
-                <tr>
-                    <th style="width: 30%;">Texte</th>
-                    <th style="width: 40%;">Lien</th>
-                    <th style="width: 15%;">Post/Page ID</th>
-                    <th style="width: 15%;">Statut</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div id="scan-button-container">
+            <button id="scan-button" data-nonce="<?php echo esc_attr($nonce); ?>">Scanner</button>
+            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+        </div>
+        <h4 class="result-count"></h4>
+        <div id="scan-result-container">
+            <table id="scan-result">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Texte</th>
+                        <th style="width: 30%;">Lien</th>
+                        <th style="width: 20%;">Titre Post/Page</th>
+                        <th style="width: 15%;">ID Post/Page</th>
+                        <th style="width: 15%;">Statut</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
     <?php
 }
@@ -111,21 +116,41 @@ function scan_homepage_links() {
     
     foreach ($links as $link) {
         $href = $link->getAttribute('href');
-        $anchor_text = trim($link->textContent);
-        $post_id = url_to_postid($href);
         if (check_if_permalink_exists($href)) {
+            $anchor_text = trim($link->textContent);
+            $post_id = url_to_postid($href);
+            $title = get_the_title($post_id);
+            $status = test_url_status($href);
                 if(strpos($href, home_url('/')) === 0) {
                     $permalinks[] = [
                         'url' => $href,
                         'anchor_text' => $anchor_text,
+                        'title' => $title,
                         'post_id' => $post_id > 0 ? $post_id : null,
+                        'status' => $status
                     ];
                 }
             }
-        }
-        
-        return $permalinks;
+    }
+    
+    return $permalinks;
 }
+
+function test_url_status($url) {
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_NOBODY, true);  
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
+
+    curl_exec($ch);
+
+    $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    curl_close($ch);
+
+    return $status_code;  
+}
+
 
 function check_if_permalink_exists($url) {
     $post_id = url_to_postid($url);
