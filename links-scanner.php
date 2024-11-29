@@ -75,21 +75,12 @@ function handle_scan_button_action() {
     }
     
     $links = scan_homepage_links();
-    $permalinks = get_all_permalinks();
-    
-    $filteredArray = get_matching_items($permalinks, $links);
     
     if (is_array($links)) {
-        wp_send_json_success(wp_send_json_success(  $filteredArray));
+        wp_send_json_success(wp_send_json_success(  $links));
     } else {
         wp_send_json_error($links);
     }
-}
-
-function get_matching_items(array $simpleArray, array $complexArray): array {
-    return array_filter($complexArray, function ($item) use ($simpleArray) {
-        return in_array($item['url'], $simpleArray);
-    });
 }
 
 function scan_homepage_links() {
@@ -107,38 +98,28 @@ function scan_homepage_links() {
 
     $links = $dom->getElementsByTagName('a');
     $permalinks = [];
-
+    
     foreach ($links as $link) {
         $href = $link->getAttribute('href');
         $anchor_text = trim($link->textContent);
-
-        if(strpos($href, home_url('/')) === 0) {
-            $permalinks[] = [
-                'url' => $href,
-                'anchor_text' => $anchor_text
-            ];
+        $post_id = url_to_postid($href);
+        if (check_if_permalink_exists($href)) {
+                if(strpos($href, home_url('/')) === 0) {
+                    $permalinks[] = [
+                        'url' => $href,
+                        'anchor_text' => $anchor_text,
+                        'post_id' => $post_id > 0 ? $post_id : null,
+                    ];
+                }
+            }
         }
-    }
-
-    return $permalinks;
+        
+        return $permalinks;
 }
 
-function get_all_permalinks() {
-    $args = array(
-        'post_type' => ['post', 'page'], 
-        'posts_per_page' => -1, 
-        'post_status' => 'publish', 
-    );
-    
-    $posts = get_posts($args);
-
-    $permalinks = [];
-
-    foreach ($posts as $post) {
-        $permalinks[] = get_permalink($post->ID);
-    }
-
-    return array_unique($permalinks);
+function check_if_permalink_exists($url) {
+    $post_id = url_to_postid($url);
+    return $post_id > 0;
 }
 
 
