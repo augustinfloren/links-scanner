@@ -1,7 +1,6 @@
 jQuery(document).ready(function ($) {
   $('#scan-button').click(function() {
       const nonce = $(this).data('nonce');
-      
       $.ajax({
         type: "POST",
         url: scanButton.ajax_url,
@@ -12,19 +11,18 @@ jQuery(document).ready(function ($) {
         success: function (response) {
           if (response.success) { 
             $links = response.data;
-            console.log($links)
+            $tbody = $("#scan-result tbody");
+            $tbody.empty();
+            $("#scan-result-container").css("visibility", "visible");
             $.each($links, function(index, link) {
-              $( "#scan-result" ).append( 
+              $tbody.append( 
                 `
-                <li class="scan-result-item">
-                  <div>
-                    <p>${link.anchor_text}<p>
-                  </div>
-                  <span class="dashicons dashicons-admin-links"></span>
-                  <a class="link" href="${link.url}">
-                    ${link.url}
-                  </a>
-                </li>
+                  <tr class=".rows">
+                    <td>${link.anchor_text}</td>
+                    <td><a href="${link.url}">${link.url}</a></td>
+                    <td>${link.post_id}</td>
+                    <td>400</td>
+                  </tr>
                 ` 
               )
             })

@@ -41,8 +41,18 @@ function render_scan_plugin_page() {
         <p>Cliquer sur le bouton ci-dessous pour commencer le scan de la page.</p>
         <button id="scan-button" data-nonce="<?php echo esc_attr($nonce); ?>">Scanner</button>
     </div>
-    <div>
-        <ul id="scan-result"></ul>
+    <div id="scan-result-container">
+        <table id="scan-result">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Texte</th>
+                    <th style="width: 40%;">Lien</th>
+                    <th style="width: 15%;">Post/Page ID</th>
+                    <th style="width: 15%;">Statut</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
     <?php
 }

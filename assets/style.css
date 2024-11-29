@@ -8,16 +8,28 @@
 
 #links-scanner > p, #links-scanner > button {
     font-size: larger;
+    cursor: pointer;
 }
 
 #links-scanner {
     margin-bottom: 2rem;
 }
 
+#scan-result-container {
+    visibility: hidden;
+}
+
 #scan-result {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    border-collapse: collapse;
+    margin-right: 2rem;
+}
+#scan-result th, #scan-result td {
+    border: 1px solid #bebebe;
+    padding: 8px;
+}
+#scan-result th {
+    background-color: #e2e2e2;
+    text-align: left;
 }
 
 #scan-result .dashicons {
@@ -30,22 +42,4 @@
     display: flex;
     gap: 2rem;
     width: 100%;
-}
-
-.scan-result-item div, .scan-result-item a {
-    align-items: center;
-    background-color: rgb(109, 109, 109);
-    border-radius: 0.45rem;
-    color: rgb(255, 255, 255);
-    display: flex;
-    height: 2.5rem;
-    justify-content: center;
-    padding: 1rem;
-    text-align: center;
-    width: 30%;
-}
-
-.scan-result-item a {
-    background-color: rgb(13, 162, 53);
-    color: white;
 }
