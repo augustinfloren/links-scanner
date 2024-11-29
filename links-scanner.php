@@ -36,13 +36,28 @@ function add_scan_plugin_menu() {
 function render_scan_plugin_page() {
     $nonce = wp_create_nonce('scan_button_action');
     ?>
-    <div class="wrap">
-        <h1>Links Scanner</h1>
+    <div id="links-scanner">
+        <h1><span class="dashicons dashicons-search"></span> Links Scanner</h1>
         <p>Cliquer sur le bouton ci-dessous pour commencer le scan de la page.</p>
-        <button id="scan-button" data-nonce="<?php echo esc_attr($nonce); ?>">Scanner</button>
-    </div>
-    <div>
-        <ul id="scan-result"></ul>
+        <div id="scan-button-container">
+            <button id="scan-button" data-nonce="<?php echo esc_attr($nonce); ?>">Scanner</button>
+            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+        </div>
+        <h4 class="result-count"></h4>
+        <div id="scan-result-container">
+            <table id="scan-result">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Texte</th>
+                        <th style="width: 30%;">Lien</th>
+                        <th style="width: 20%;">Titre Post/Page</th>
+                        <th style="width: 15%;">ID Post/Page</th>
+                        <th style="width: 15%;">Statut</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
     <?php
 }
@@ -75,21 +90,12 @@ function handle_scan_button_action() {
     }
     
     $links = scan_homepage_links();
-    $permalinks = get_all_permalinks();
-    
-    $filteredArray = get_matching_items($permalinks, $links);
     
     if (is_array($links)) {
-        wp_send_json_success(wp_send_json_success(  $filteredArray));
+        wp_send_json_success(wp_send_json_success(  $links));
     } else {
         wp_send_json_error($links);
     }
-}
-
-function get_matching_items(array $simpleArray, array $complexArray): array {
-    return array_filter($complexArray, function ($item) use ($simpleArray) {
-        return in_array($item['url'], $simpleArray);
-    });
 }
 
 function scan_homepage_links() {
@@ -107,38 +113,48 @@ function scan_homepage_links() {
 
     $links = $dom->getElementsByTagName('a');
     $permalinks = [];
-
+    
     foreach ($links as $link) {
         $href = $link->getAttribute('href');
-        $anchor_text = trim($link->textContent);
-
-        if(strpos($href, home_url('/')) === 0) {
-            $permalinks[] = [
-                'url' => $href,
-                'anchor_text' => $anchor_text
-            ];
-        }
+        if (check_if_permalink_exists($href)) {
+            $anchor_text = trim($link->textContent);
+            $post_id = url_to_postid($href);
+            $title = get_the_title($post_id);
+            $status = test_url_status($href);
+                if(strpos($href, home_url('/')) === 0) {
+                    $permalinks[] = [
+                        'url' => $href,
+                        'anchor_text' => $anchor_text,
+                        'title' => $title,
+                        'post_id' => $post_id > 0 ? $post_id : null,
+                        'status' => $status
+                    ];
+                }
+            }
     }
-
+    
     return $permalinks;
 }
 
-function get_all_permalinks() {
-    $args = array(
-        'post_type' => ['post', 'page'], 
-        'posts_per_page' => -1, 
-        'post_status' => 'publish', 
-    );
-    
-    $posts = get_posts($args);
+function test_url_status($url) {
+    $ch = curl_init($url);
 
-    $permalinks = [];
+    curl_setopt($ch, CURLOPT_NOBODY, true);  
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
 
-    foreach ($posts as $post) {
-        $permalinks[] = get_permalink($post->ID);
-    }
+    curl_exec($ch);
 
-    return array_unique($permalinks);
+    $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    curl_close($ch);
+
+    return $status_code;  
+}
+
+
+function check_if_permalink_exists($url) {
+    $post_id = url_to_postid($url);
+    return $post_id > 0;
 }
 
 
